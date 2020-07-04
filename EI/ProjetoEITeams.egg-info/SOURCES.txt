@@ -1,0 +1,8 @@
+EI.py
+models.py
+setup.py
+ProjetoEITeams.egg-info/PKG-INFO
+ProjetoEITeams.egg-info/SOURCES.txt
+ProjetoEITeams.egg-info/dependency_links.txt
+ProjetoEITeams.egg-info/requires.txt
+ProjetoEITeams.egg-info/top_level.txt
