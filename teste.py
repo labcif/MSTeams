@@ -216,7 +216,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                 users.append(user)
             buffer = jarray.zeros(file.getSize(), "b")
             file.read(buffer,0,file.getSize())
-            if "lost" not in src and "Roaming" in file.getParentPath():
+            if "lost" not in src and "Roaming" in file.getParentPath() and "ProjetoEI" not in file.getParentPath():
                 if src not in paths:
                     tm = datetime.fromtimestamp(math.floor(tim.time())).strftime("%m-%d-%Y_%Hh-%Mm-%Ss")
                     paths[src]="Analysis_Autopsy_LDB_{}_{}".format(user,tm)
@@ -230,7 +230,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                 f = open(os.path.join(os.path.join(projectEIAppDataPath,paths[src]),file.getName()),"wb")
                 f.write(buffer.tostring())
                 f.close()
-
             # try:
             #     # index the artifact for keyword search
             #     blackboard.indexArtifact(art)
@@ -243,8 +242,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
             for src, path in paths.items():
                 complementaryFiles=fileManager.findFilesByParentPath(dataSource.getId(),src)
                 for file in complementaryFiles:
-                    self.log(Level.INFO,file.getName())
-                    if "lost" not in file.getParentPath() and ".ldb" not in file.getName() and "lost" not in file.getName() and "Roaming" in file.getParentPath():
+                    if "lost" not in file.getParentPath() and ".ldb" not in file.getName() and "lost" not in file.getName() and "Roaming" in file.getParentPath() and "ProjetoEI" not in file.getParentPath():
                         if file.getName() == "." or file.getName() == ".." or "-slack" in file.getName():
                             continue
                         buffer = jarray.zeros(file.getSize(), "b")
@@ -265,7 +263,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                             f.close()
                         except :
                             self.log(Level.INFO,"File Crash")
-        self.log(Level.INFO,"ALO")
         pathModule = os.path.realpath(__file__)
         indexCutPath=pathModule.rfind("\\")
         pathModule=pathModule[0:indexCutPath+1]
@@ -279,7 +276,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                 result[key] = value
     
         for key, value in result.items():
-            self.log(Level.INFO,str([r"{}EI\EI.exe".format(pathModule),"--pathToEI",r"{}EI\ ".format(pathModule), "-a", value]))
             p = subprocess.Popen([r"{}EI\EI.exe".format(pathModule),"--pathToEI",r"{}EI\ ".format(pathModule), "-a", value],stderr=subprocess.PIPE)
             out = p.stderr.read()
             self.log(Level.INFO, out)
@@ -300,11 +296,9 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                         results.append(os.path.join(projectEIAppDataPath,name))
         f = open(os.path.join(projectEIAppDataPath,"filesToReport.txt"),"w")
         for r in results:
-            self.log(Level.INFO,r)
             for files in os.walk(r,topdown=False):
                 for name in files:
                     for fileName in name:
-                        self.log(Level.INFO,str(fileName))
                         if ".csv" in fileName or ".html" in fileName or ".css" in fileName:
                             f.write(os.path.join(r,fileName)+"\n")
                         
@@ -314,236 +308,232 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
         for line in f:
             line = line.replace("\n","")
             pathExtract=""
-            # ok
-            if "EventCall.csv" in line:
-                self.log(Level.INFO,line)
-                rowcount=0
-                for key,value in pathsLDB.items():
-                    if value in line:
-                        for k,v in paths.items():
-                            if v == key:
-                                pathExtract=k
-                                break
-                with io.open(line,encoding="utf-8") as csvfile:
-                    reader = csv.reader(x.replace('\0', '') for x in csvfile)  
-                    for row in reader: # each row is a list
-                        try:
-                            row = row[0].split(";")
-                            if rowcount!=0:
-                                art = dataSource.newArtifact(self.art_call.getTypeID())
-                                dura=str(int(float(row[4])))
-                                art.addAttribute(BlackboardAttribute(self.att_date, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
-                                art.addAttribute(BlackboardAttribute(self.att_creator_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
-                                art.addAttribute(BlackboardAttribute(self.att_creator_email, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
-                                art.addAttribute(BlackboardAttribute(self.att_count_people_in, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
-                                art.addAttribute(BlackboardAttribute(self.att_duration, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName,dura ))
-                                art.addAttribute(BlackboardAttribute(self.att_participant_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[5])))
-                                art.addAttribute(BlackboardAttribute(self.att_participant_email, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[6])))
-                                art.addAttribute(BlackboardAttribute(self.att_user_calls, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[7])))
-                                art.addAttribute(BlackboardAttribute(self.att_folder_extract_calls, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
-                        except:
-                            self.log(Level.INFO,"File empty")
-                        rowcount+=1
-                    csvfile.close()
-            # ok
-            elif "Conversations.csv" in line:
-                self.log(Level.INFO,line)
-                rowcount=0
-                for key,value in pathsLDB.items():
-                    if value in line:
-                        for k,v in paths.items():
-                            if v == key:
-                                pathExtract=k
-                                break
-                with io.open(line,encoding="utf-8") as csvfile:
-                    reader = csv.reader(x.replace('\0', '') for x in csvfile)  
-                    for row in reader: # each row is a list
-                        try:
-                            row = row[0].split(";")
-                            if rowcount!=0:
-                                art = dataSource.newArtifact(self.art_teams.getTypeID())
-                                art.addAttribute(BlackboardAttribute(self.att_cv_id_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
-                                art.addAttribute(BlackboardAttribute(self.att_creator_name_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
-                                art.addAttribute(BlackboardAttribute(self.att_creator_email_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
-                                art.addAttribute(BlackboardAttribute(self.att_participant_name_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
-                                art.addAttribute(BlackboardAttribute(self.att_participant_email_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[4])))
-                                art.addAttribute(BlackboardAttribute(self.att_user_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[5])))
-                                art.addAttribute(BlackboardAttribute(self.att_folder_extract_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
-                        except:
-                            self.log(Level.INFO,"File empty")
-                        rowcount+=1
-                    csvfile.close()
-            # ok
-            elif "CallOneToOne.csv" in line:
-                self.log(Level.INFO,line)
-                rowcount=0
-                for key,value in pathsLDB.items():
-                    if value in line:
-                        for k,v in paths.items():
-                            if v == key:
-                                pathExtract=k
-                                break
-                with io.open(line,encoding="utf-8") as csvfile:
-                    reader = csv.reader(x.replace('\0', '') for x in csvfile)  
-                    for row in reader: # each row is a list
-                        try:
-                            row = row[0].split(";")
-                            if rowcount!=0:
-                                art = dataSource.newArtifact(self.art_call_one_to_one.getTypeID())
-                                art.addAttribute(BlackboardAttribute(self.att_date_start_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
-                                art.addAttribute(BlackboardAttribute(self.att_date_finish_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
-                                art.addAttribute(BlackboardAttribute(self.att_creator_name_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
-                                art.addAttribute(BlackboardAttribute(self.att_creator_email_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
-                                art.addAttribute(BlackboardAttribute(self.att_participant_name_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[4])))
-                                art.addAttribute(BlackboardAttribute(self.att_participant_email_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[5])))
-                                art.addAttribute(BlackboardAttribute(self.att_state_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[6])))
-                                art.addAttribute(BlackboardAttribute(self.att_user_calls_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[7])))
-                                art.addAttribute(BlackboardAttribute(self.att_folder_extract_calls_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
-                        except:
-                            self.log(Level.INFO,"File empty")
-                        rowcount+=1
-                    csvfile.close()
-            elif "Files.csv" in line:
-                self.log(Level.INFO,line)
-                rowcount=0
-                for key,value in pathsLDB.items():
-                    if value in line:
-                        for k,v in paths.items():
-                            if v == key:
-                                pathExtract=k
-                                break
-                with io.open(line,encoding="utf-8") as csvfile:
-                    reader = csv.reader(x.replace('\0', '') for x in csvfile)  
-                    for row in reader: # each row is a list
-                        try:
-                            row = row[0].split(";")
-                            if rowcount!=0:
-                                art = dataSource.newArtifact(self.art_messages_files.getTypeID())
-                                art.addAttribute(BlackboardAttribute(self.att_message_id_files, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
-                                art.addAttribute(BlackboardAttribute(self.att_file_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
-                                art.addAttribute(BlackboardAttribute(self.att_file_local, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
-                                art.addAttribute(BlackboardAttribute(self.att_user_message_files, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
-                                art.addAttribute(BlackboardAttribute(self.att_folder_extract_files, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
-                        except:
-                            self.log(Level.INFO,"File empty")
-                        rowcount+=1
-                    csvfile.close()
-            elif "messages_from_html.csv" in line:
-                self.log(Level.INFO,line)
-                rowcount=0
-                for key,value in pathsLDB.items():
-                    if value in line:
-                        for k,v in paths.items():
-                            if v == key:
-                                pathExtract=k
-                                break
-                idMessage=""
-                message=""
-                sender=""
-                timee=""
-                cvid=""
-                userMessage=""
-                with open(line) as csvfile:
-                    reader = csv.reader(x.replace('\0', '') for x in csvfile)                     
-                    for row in reader: # each row is a list
-                        try:
-                            self.log(Level.INFO,str(row))
-                            if rowcount!=0:
-                                if len(row) == 1:
-                                    row = row[0].split(";")
-                                    idMessage=str(row[2])                                
-                                    message=str(row[3])
-                                    timee=str(row[4])
-                                    sender=str(row[5])
-                                    cvid=str(row[6])
-                                    userMessage=str(row[7])
-                                else:
-                                    partOne = row[0].split(";")
-                                    idMessage=str(partOne[2])
-                                    lastPart=row[len(row)-1].split(";")
-                                    timee=str(lastPart[1])
-                                    sender=str(lastPart[2])
-                                    cvid=str(lastPart[3])
-                                    userMessage=str(lastPart[4])
-                                    message=str(partOne[1])+","
-                                    if len(row)!=2:
-                                        for x in range(1,len(row)-1):
-                                            message+=str(row[x])+","
-                                    message+=str(lastPart[0])
-                                self.log(Level.INFO,message)
-                                art = dataSource.newArtifact(self.art_messages.getTypeID())
-                                art.addAttribute(BlackboardAttribute(self.att_message_id, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, idMessage))
-                                art.addAttribute(BlackboardAttribute(self.att_message, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, message))
-                                art.addAttribute(BlackboardAttribute(self.att_sender_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, sender))
-                                art.addAttribute(BlackboardAttribute(self.att_time, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, timee))
-                                art.addAttribute(BlackboardAttribute(self.att_cvid, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, cvid))
-                                art.addAttribute(BlackboardAttribute(self.att_user_message, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, userMessage))
-                                art.addAttribute(BlackboardAttribute(self.att_folder_extract_message, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
-                        except:
-                            self.log(Level.INFO,"File empty")
-                        rowcount+=1
-                    csvfile.close()
-            elif "Reacts.csv" in line:
-                self.log(Level.INFO,line)
-                rowcount=0
-                for key,value in pathsLDB.items():
-                    if value in line:
-                        for k,v in paths.items():
-                            if v == key:
-                                pathExtract=k
-                                break
-                self.log(Level.INFO,"HJ")
-                with io.open(line,encoding="utf-8") as csvfile:
-                    reader = csv.reader(x.replace('\0', '') for x in csvfile)  
-                    for row in reader: # each row is a list
-                        try:
-                            row = row[0].split(";")
-                            if rowcount!=0:
-                                self.log(Level.INFO,str(row))
-                                art = dataSource.newArtifact(self.art_messages_reacts.getTypeID())
-                                try:
-                                    art.addAttribute(BlackboardAttribute(self.att_message_id_reacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
-                                    art.addAttribute(BlackboardAttribute(self.att_reacted_with, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
-                                    art.addAttribute(BlackboardAttribute(self.att_sender_name_react, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
-                                    art.addAttribute(BlackboardAttribute(self.att_react_time, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
-                                    art.addAttribute(BlackboardAttribute(self.att_user_message_reacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[4])))
-                                    art.addAttribute(BlackboardAttribute(self.att_folder_extract_reacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
-                                except:
-                                    pass
-                                else:
-                                    pass
-                        except:
-                            self.log(Level.INFO,"File empty")
-                        rowcount+=1
-                    csvfile.close()
-            elif "Contactos.csv" in line:
-                self.log(Level.INFO,line)
-                rowcount=0
-                for key,value in pathsLDB.items():
-                    if value in line:
-                        for k,v in paths.items():
-                            if v == key:
-                                pathExtract=k
-                                break
-                with io.open(line,encoding="utf-8") as csvfile:
-                    reader = csv.reader(x.replace('\0', '') for x in csvfile)  
-                    for row in reader: # each row is a list
-                        try:
-                            row = row[0].split(";")
-                            if rowcount!=0:
-                                self.log(Level.INFO,str(row))
-                                art = dataSource.newArtifact(self.art_contacts.getTypeID())
-                                art.addAttribute(BlackboardAttribute(self.att_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
-                                art.addAttribute(BlackboardAttribute(self.att_email, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
-                                art.addAttribute(BlackboardAttribute(self.att_orgid, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
-                                art.addAttribute(BlackboardAttribute(self.att_user_contacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
-                                art.addAttribute(BlackboardAttribute(self.att_folder_extract_contacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
-                        except:
-                            self.log(Level.INFO,"File empty")
-                        rowcount+=1
-                    csvfile.close()
+            if ".csv" in line:
+                # ok
+                if "EventCall" in line:
 
-        rowcount=0
+                    rowcount=0
+                    for key,value in pathsLDB.items():
+                        if value in line:
+                            for k,v in paths.items():
+                                if v == key:
+                                    pathExtract=k
+                                    break
+                    with io.open(line,encoding="utf-8") as csvfile:
+                        reader = csv.reader(x.replace('\0', '') for x in csvfile)  
+                        for row in reader: # each row is a list
+                            try:
+                                row = row[0].split(";")
+                                if rowcount!=0:
+                                    art = dataSource.newArtifact(self.art_call.getTypeID())
+                                    dura=str(int(float(row[4])))
+                                    art.addAttribute(BlackboardAttribute(self.att_date, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
+                                    art.addAttribute(BlackboardAttribute(self.att_creator_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
+                                    art.addAttribute(BlackboardAttribute(self.att_creator_email, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
+                                    art.addAttribute(BlackboardAttribute(self.att_count_people_in, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
+                                    art.addAttribute(BlackboardAttribute(self.att_duration, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName,dura ))
+                                    art.addAttribute(BlackboardAttribute(self.att_participant_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[5])))
+                                    art.addAttribute(BlackboardAttribute(self.att_participant_email, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[6])))
+                                    art.addAttribute(BlackboardAttribute(self.att_user_calls, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[7])))
+                                    art.addAttribute(BlackboardAttribute(self.att_folder_extract_calls, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
+                            except:
+                                self.log(Level.INFO,"File empty")
+                            rowcount+=1
+                        csvfile.close()
+                # ok
+                elif "Conversations" in line:
+
+                    rowcount=0
+                    for key,value in pathsLDB.items():
+                        if value in line:
+                            for k,v in paths.items():
+                                if v == key:
+                                    pathExtract=k
+                                    break
+                    with io.open(line,encoding="utf-8") as csvfile:
+                        reader = csv.reader(x.replace('\0', '') for x in csvfile)  
+                        for row in reader: # each row is a list
+                            try:
+                                row = row[0].split(";")
+                                if rowcount!=0:
+                                    art = dataSource.newArtifact(self.art_teams.getTypeID())
+                                    art.addAttribute(BlackboardAttribute(self.att_cv_id_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
+                                    art.addAttribute(BlackboardAttribute(self.att_creator_name_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
+                                    art.addAttribute(BlackboardAttribute(self.att_creator_email_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
+                                    art.addAttribute(BlackboardAttribute(self.att_participant_name_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
+                                    art.addAttribute(BlackboardAttribute(self.att_participant_email_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[4])))
+                                    art.addAttribute(BlackboardAttribute(self.att_user_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[5])))
+                                    art.addAttribute(BlackboardAttribute(self.att_folder_extract_teams, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
+                            except:
+                                self.log(Level.INFO,"File empty")
+                            rowcount+=1
+                        csvfile.close()
+                # ok
+                elif "CallOneToOne" in line:
+
+                    rowcount=0
+                    for key,value in pathsLDB.items():
+                        if value in line:
+                            for k,v in paths.items():
+                                if v == key:
+                                    pathExtract=k
+                                    break
+                    with io.open(line,encoding="utf-8") as csvfile:
+                        reader = csv.reader(x.replace('\0', '') for x in csvfile)  
+                        for row in reader: # each row is a list
+                            try:
+                                row = row[0].split(";")
+                                if rowcount!=0:
+                                    art = dataSource.newArtifact(self.art_call_one_to_one.getTypeID())
+                                    art.addAttribute(BlackboardAttribute(self.att_date_start_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
+                                    art.addAttribute(BlackboardAttribute(self.att_date_finish_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
+                                    art.addAttribute(BlackboardAttribute(self.att_creator_name_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
+                                    art.addAttribute(BlackboardAttribute(self.att_creator_email_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
+                                    art.addAttribute(BlackboardAttribute(self.att_participant_name_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[4])))
+                                    art.addAttribute(BlackboardAttribute(self.att_participant_email_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[5])))
+                                    art.addAttribute(BlackboardAttribute(self.att_state_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[6])))
+                                    art.addAttribute(BlackboardAttribute(self.att_user_calls_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[7])))
+                                    art.addAttribute(BlackboardAttribute(self.att_folder_extract_calls_one_to_one, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
+                            except:
+                                self.log(Level.INFO,"File empty")
+                            rowcount+=1
+                        csvfile.close()
+                elif "Files" in line:
+
+                    rowcount=0
+                    for key,value in pathsLDB.items():
+                        if value in line:
+                            for k,v in paths.items():
+                                if v == key:
+                                    pathExtract=k
+                                    break
+                    with io.open(line,encoding="utf-8") as csvfile:
+                        reader = csv.reader(x.replace('\0', '') for x in csvfile)  
+                        for row in reader: # each row is a list
+                            try:
+                                row = row[0].split(";")
+                                if rowcount!=0:
+                                    art = dataSource.newArtifact(self.art_messages_files.getTypeID())
+                                    art.addAttribute(BlackboardAttribute(self.att_message_id_files, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
+                                    art.addAttribute(BlackboardAttribute(self.att_file_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
+                                    art.addAttribute(BlackboardAttribute(self.att_file_local, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
+                                    art.addAttribute(BlackboardAttribute(self.att_user_message_files, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
+                                    art.addAttribute(BlackboardAttribute(self.att_folder_extract_files, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
+                            except:
+                                self.log(Level.INFO,"File empty")
+                            rowcount+=1
+                        csvfile.close()
+                elif "Mensagens" in line:
+                    rowcount=0
+                    for key,value in pathsLDB.items():
+                        if value in line:
+                            for k,v in paths.items():
+                                if v == key:
+                                    pathExtract=k
+                                    break
+                    idMessage=""
+                    message=""
+                    sender=""
+                    timee=""
+                    cvid=""
+                    userMessage=""
+                    with open(line) as csvfile:
+                        reader = csv.reader(x.replace('\0', '') for x in csvfile)                     
+                        for row in reader: # each row is a list
+                            try:
+                                self.log(Level.INFO,str(row))
+                                if rowcount!=0:
+                                    if len(row) == 1:
+                                        row = row[0].split(";")
+                                        idMessage=str(row[0])                                
+                                        message=str(row[1])
+                                        time=str(row[2])
+                                        sender=str(row[3])
+                                        cvid=str(row[4])
+                                        userMessage=str(row[5])
+                                    else:
+                                        partOne = row[0].split(";")
+                                        idMessage=str(partOne[0])
+                                        lastPart=row[len(row)-1].split(";")
+                                        time=str(lastPart[1])
+                                        sender=str(lastPart[2])
+                                        cvid=str(lastPart[3])
+                                        userMessage=str(lastPart[4])
+                                        message=str(partOne[1])+","
+                                        if len(row)!=2:
+                                            for x in range(1,len(row)-1):
+                                                message+=str(row[x])+","
+                                        message+=str(lastPart[0])
+                                    art = dataSource.newArtifact(self.art_messages.getTypeID())
+                                    art.addAttribute(BlackboardAttribute(self.att_message_id, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, idMessage))
+                                    art.addAttribute(BlackboardAttribute(self.att_message, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, message))
+                                    art.addAttribute(BlackboardAttribute(self.att_sender_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, sender))
+                                    art.addAttribute(BlackboardAttribute(self.att_time, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, timee))
+                                    art.addAttribute(BlackboardAttribute(self.att_cvid, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, cvid))
+                                    art.addAttribute(BlackboardAttribute(self.att_user_message, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, userMessage))
+                                    art.addAttribute(BlackboardAttribute(self.att_folder_extract_message, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
+                            except:
+                                self.log(Level.INFO,"File empty")
+                            rowcount+=1
+                        csvfile.close()
+                elif "Reacts" in line:
+
+                    rowcount=0
+                    for key,value in pathsLDB.items():
+                        if value in line:
+                            for k,v in paths.items():
+                                if v == key:
+                                    pathExtract=k
+                                    break
+                    with io.open(line,encoding="utf-8") as csvfile:
+                        reader = csv.reader(x.replace('\0', '') for x in csvfile)  
+                        for row in reader: # each row is a list
+                            try:
+                                row = row[0].split(";")
+                                if rowcount!=0:
+                                    art = dataSource.newArtifact(self.art_messages_reacts.getTypeID())
+                                    try:
+                                        art.addAttribute(BlackboardAttribute(self.att_message_id_reacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
+                                        art.addAttribute(BlackboardAttribute(self.att_reacted_with, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
+                                        art.addAttribute(BlackboardAttribute(self.att_sender_name_react, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
+                                        art.addAttribute(BlackboardAttribute(self.att_react_time, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
+                                        art.addAttribute(BlackboardAttribute(self.att_user_message_reacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[4])))
+                                        art.addAttribute(BlackboardAttribute(self.att_folder_extract_reacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
+                                    except:
+                                        pass
+                                    else:
+                                        pass
+                            except:
+                                self.log(Level.INFO,"File empty")
+                            rowcount+=1
+                        csvfile.close()
+                elif "Contactos.csv" in line:
+
+                    rowcount=0
+                    for key,value in pathsLDB.items():
+                        if value in line:
+                            for k,v in paths.items():
+                                if v == key:
+                                    pathExtract=k
+                                    break
+                    with io.open(line,encoding="utf-8") as csvfile:
+                        reader = csv.reader(x.replace('\0', '') for x in csvfile)  
+                        for row in reader: # each row is a list
+                            try:
+                                row = row[0].split(";")
+                                if rowcount!=0:
+                                    art = dataSource.newArtifact(self.art_contacts.getTypeID())
+                                    art.addAttribute(BlackboardAttribute(self.att_name, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[0])))
+                                    art.addAttribute(BlackboardAttribute(self.att_email, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[1])))
+                                    art.addAttribute(BlackboardAttribute(self.att_orgid, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[2])))
+                                    art.addAttribute(BlackboardAttribute(self.att_user_contacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, str(row[3])))
+                                    art.addAttribute(BlackboardAttribute(self.att_folder_extract_contacts, LabcifMSTeamsDataSourceIngestModuleFactory.moduleName, pathExtract))
+                            except:
+                                self.log(Level.INFO,"File empty")
+                            rowcount+=1
+                        csvfile.close()
+
+            rowcount=0
         
         #Post a message to the ingest messages in box.
         message = IngestMessage.createMessage(IngestMessage.MessageType.DATA,

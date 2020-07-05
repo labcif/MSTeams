@@ -19,7 +19,7 @@ home = str(Path.home())
 levelDBPath = appdata + "\\Microsoft\\Teams\\IndexedDB\\https_teams.microsoft.com_0.indexeddb.leveldb"
 levelDBPathLost = appdata + "\\Microsoft\\Teams\\IndexedDB\\https_teams.microsoft.com_0.indexeddb.leveldb\\lost"
 projetoEIAppDataPath = appdata + "\\ProjetoEI\\"
-
+user=""
 wroteReacts = False
 linkEmoji = "https://statics.teams.cdn.office.net/evergreen-assets/skype/v2/{0}/50.png"
 arrayRich = []
@@ -1015,7 +1015,7 @@ def filtro(buffer):
                         else:
                             pathReacts = pathToAutopsy
 
-                        with open(os.path.join(pathReacts, 'Reacts.csv'), 'a+', newline='',
+                        with open(os.path.join(pathReacts, 'Reacts_{}.csv'.format(user)), 'a+', newline='',
                                   encoding="utf-8") as csvfile:
                             messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
                             for r in arrayReacoes:
@@ -1192,7 +1192,7 @@ def createhtmltables(pathToFolder, user):
         iterator = iterator + 1
 
     frame_contacts = pd.DataFrame.from_dict(sorted_by_name_contacts, orient='index', columns=['Name', 'Email', 'User'])
-    with open(os.path.join(pathToFolder, "User_Contacts.html"), 'w', encoding="utf-8") as file:
+    with open(os.path.join(pathToFolder, "User_Contacts{}.html".format(user)), 'w', encoding="utf-8") as file:
         file.write(html_string.format(title="CONTACTS", table=frame_contacts.to_html(classes='mystyle')))
 
     # Create html table to present Calls in Teams
@@ -1206,7 +1206,7 @@ def createhtmltables(pathToFolder, user):
 
     frame_team_calls = pd.DataFrame(teams_calls, columns=["End date", "Duration (minutes)", "Number of participants",
                                                           "Call Creator", "Call Participants", "user"])
-    with open(os.path.join(pathToFolder, "Calls_Teams.html"), 'w', encoding="utf-8") as file:
+    with open(os.path.join(pathToFolder, "Calls_Teams_{}.html".format(user)), 'w', encoding="utf-8") as file:
         file.write(html_string.format(title="TEAM CALLS", table=frame_team_calls.to_html(classes='mystyle')))
 
     # Create html table to present Calls in private conversations
@@ -1221,7 +1221,7 @@ def createhtmltables(pathToFolder, user):
     frame_private_calls = pd.DataFrame(private_calls, columns=["Date Start Call", "Date End Call", "Call Creator Name",
                                                                "Call Creator Email", "Call Participant Name",
                                                                "Call Participant Email", "User"])
-    with open(os.path.join(pathToFolder, "Calls_Private_Conversations.html"), 'w', encoding="utf-8") as file:
+    with open(os.path.join(pathToFolder, "Calls_Private_Conversations_{}.html".format(user)), 'w', encoding="utf-8") as file:
         file.write(html_string.format(title="PRIVATE CALLS", table=frame_private_calls.to_html(classes='mystyle')))
 
     # Create html table to present formation of new Teams
@@ -1238,26 +1238,26 @@ def createhtmltables(pathToFolder, user):
                                                   "Email of User who added member", "Member Name", "Member Email",
                                                   "User"])
 
-    with open(os.path.join(pathToFolder, "Teams_Formation.html"), 'w', encoding="utf-8") as file:
+    with open(os.path.join(pathToFolder, "Teams_Formation_{}.html".format(user)), 'w', encoding="utf-8") as file:
         file.write(html_string.format(title="TEAMS FORMATION", table=frame_teams_formation.to_html(classes='mystyle')))
 
     # Create html table to present messages files
-    frame_files = pd.read_csv(os.path.join(pathToFolder, "Files.csv"), delimiter=";", header=0,
+    frame_files = pd.read_csv(os.path.join(pathToFolder, "Files_{}.csv".format(user)), delimiter=";", header=0,
                               names=["Message ID", "File name", "File link", 'User'])
-    with open(os.path.join(pathToFolder, "User_Messages_Files.html"), 'w', encoding="utf-8") as file:
+    with open(os.path.join(pathToFolder, "User_Messages_Files_{}.html".format(user)), 'w', encoding="utf-8") as file:
         file.write(html_string.format(title="MESSAGES FILES", table=frame_files.to_html(classes='mystyle')))
 
     # Create html table to present messages reactions
-    frame_reacts = pd.read_csv(os.path.join(pathToFolder, "Reacts.csv"), delimiter=";", header=0,
+    frame_reacts = pd.read_csv(os.path.join(pathToFolder, "Reacts_{}.csv".format(user)), delimiter=";", header=0,
                                names=["Message ID", "Reaction", "Reacted by", 'Date'])
-    with open(os.path.join(pathToFolder, "User_Messages_Reacts.html"), 'w', encoding="utf-8") as file:
+    with open(os.path.join(pathToFolder, "User_Messages_Reacts_{}.html".format(user)), 'w', encoding="utf-8") as file:
         file.write(html_string.format(title="MESSAGES REACTIONS", table=frame_reacts.to_html(classes='mystyle')))
 
     # Create html table to present messages
-    frame_messages = pd.read_csv(os.path.join(pathToFolder, "Mensagens.csv"), delimiter=";", header=0,
+    frame_messages = pd.read_csv(os.path.join(pathToFolder, "Mensagens_{}.csv".format(user)), delimiter=";", header=0,
                                  names=["Message ID", "Message", "Date", 'Sender', 'Conversation ID', 'User'],
                                  encoding="utf-8")
-    with open(os.path.join(pathToFolder, "User_Messages.html"), 'w', encoding="utf-8") as file:
+    with open(os.path.join(pathToFolder, "User_Messages_{}.html".format(user)), 'w', encoding="utf-8") as file:
         file.write(html_string.format(title="MESSAGES", table=frame_messages.to_html(classes='mystyle')))
 
     # generate index html page
@@ -1274,7 +1274,7 @@ def createhtmltables(pathToFolder, user):
                     <h1 style="text-align: center; padding: 10% 0;">User: {user}</h1>
                     <ul>
                         <li>
-                            <a href="User_Contacts.html">
+                            <a href="User_Contacts_{user}.html">
                                 <div class="icon">
                                     <i class="fa fa-address-book"></i>
                                     <i class="fa fa-address-book"></i>
@@ -1284,7 +1284,7 @@ def createhtmltables(pathToFolder, user):
                             </a>
                         </li>
                         <li>
-                            <a href="User_Messages.html">
+                            <a href="User_Messages_{user}.html">
                                 <div class="icon">
                                     <i class="fa fa-envelope"></i>
                                     <i class="fa fa-envelope"></i>
@@ -1294,7 +1294,7 @@ def createhtmltables(pathToFolder, user):
                             </a>
                         </li>
                         <li>
-                            <a href="User_Messages_Files.html">
+                            <a href="User_Messages_Files_{user}.html">
                                 <div class="icon">
                                     <i class="fa fa-file"></i>
                                     <i class="fa fa-file"></i>
@@ -1304,7 +1304,7 @@ def createhtmltables(pathToFolder, user):
                             </a>
                         </li>
                         <li>
-                            <a href="User_Messages_Reacts.html">
+                            <a href="User_Messages_Reacts_{user}.html">
                                 <div class="icon">
                                     <i class="fa fa-thumbs-up"></i>
                                     <i class="fa fa-thumbs-up"></i>
@@ -1314,7 +1314,7 @@ def createhtmltables(pathToFolder, user):
                             </a>
                         </li>
                         <li>
-                            <a href="Calls_Private_Conversations.html">
+                            <a href="Calls_Private_Conversations_{user}.html">
                                 <div class="icon">
                                     <i class="fa fa-phone"></i>
                                     <i class="fa fa-phone"></i>
@@ -1324,7 +1324,7 @@ def createhtmltables(pathToFolder, user):
                             </a>
                         </li>
                         <li>
-                            <a href="Teams_Formation.html">
+                            <a href="Teams_Formation_{user}.html">
                                 <div class="icon">
                                     <i class="fa fa-users"></i>
                                     <i class="fa fa-users"></i>
@@ -1334,7 +1334,7 @@ def createhtmltables(pathToFolder, user):
                             </a>
                         </li>
                         <li>
-                            <a href="Calls_Teams.html">
+                            <a href="Calls_Teams_{user}.html">
                                 <div class="icon">
                                     <i class="fa fa-phone"></i>
                                     <i class="fa fa-phone"></i>
@@ -1347,7 +1347,7 @@ def createhtmltables(pathToFolder, user):
                 </body>
             </html>
             '''
-    with open(os.path.join(pathToFolder, "index.html"), 'w', encoding="utf-8") as file:
+    with open(os.path.join(pathToFolder, "index_{}.html".format(user)), 'w', encoding="utf-8") as file:
         file.write(html_string_index.format(contacts_number=str(frame_contacts.__len__()),
                                             messages_number=str(frame_messages.__len__()),
                                             messages_files_number=str(frame_files.__len__()),
@@ -1438,11 +1438,11 @@ def createhtmltables(pathToFolder, user):
     with open(os.path.join(pathToFolder, "style.css"), 'w') as f:
         f.write(css_string)
 
-    html = open(os.path.join(pathToFolder, "User_Messages.html"), 'r', encoding="utf-8")
+    html = open(os.path.join(pathToFolder, "User_Messages_{}.html".format(user)), 'r', encoding="utf-8")
     source_code = html.read()
     tables = pd.read_html(source_code)
     for i, table in enumerate(tables):
-        table.to_csv(os.path.join(pathToFolder, 'messages_from_html.csv'), ';')
+        table.to_csv(os.path.join(pathToFolder, 'messages_from_html_{}.csv'.format(user)), ';')
 
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -1515,7 +1515,7 @@ if __name__ == "__main__":
                             else:
                                 print("Successfully created the directory %s " % pathMulti)
 
-                            with open(os.path.join(pathMulti, 'Reacts.csv'), 'a+', newline='',
+                            with open(os.path.join(pathMulti, 'Reacts_{}.csv'.format(user)), 'a+', newline='',
                                       encoding="utf-8") as csvfile:
                                 fieldnames = ['messageID', 'reacted_with', 'reacted_by', 'react_time', 'user']
                                 messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|',
@@ -1535,7 +1535,7 @@ if __name__ == "__main__":
                             idMessage = 1
                             findpadrao(pathMulti)
 
-                            with open(os.path.join(pathMulti, 'Contactos.csv'), 'a+', newline='',
+                            with open(os.path.join(pathMulti, 'Contactos_{}.csv'.format(user)), 'a+', newline='',
                                       encoding="utf-8") as csvfile:
                                 fieldnames = ['nome', 'email', 'orgid''user']
                                 messagewriter = csv.writer(csvfile, delimiter=';',
@@ -1545,7 +1545,7 @@ if __name__ == "__main__":
                                     messagewriter.writerow([value.nome, value.email, value.orgid, user])
                                 csvfile.close()
 
-                            with open(os.path.join(pathMulti, 'Mensagens.csv'), 'a+', newline='',
+                            with open(os.path.join(pathMulti, 'Mensagens_{}.csv'.format(user)), 'a+', newline='',
                                       encoding="utf-8") as csvfile:
                                 fieldnames = ['messageID', 'message', 'time', 'sender', 'conversation_id', 'user']
                                 messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|',
@@ -1563,7 +1563,7 @@ if __name__ == "__main__":
                                     idMessage += 1
                                 csvfile.close()
 
-                            with open(os.path.join(pathMulti, 'Files.csv'), 'a+', newline='',
+                            with open(os.path.join(pathMulti, 'Files_{}.csv'.format(user)), 'a+', newline='',
                                       encoding="utf-8") as csvfile:
                                 fieldnames = ['messageID', 'file_name', 'file_url', 'user']
                                 messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|',
@@ -1576,7 +1576,7 @@ if __name__ == "__main__":
                                         messagewriter.writerow([str(key), f.nome, f.local, 'user'])
                                 csvfile.close()
 
-                            with open(os.path.join(pathMulti, 'EventCall.csv'), 'a+', newline='',
+                            with open(os.path.join(pathMulti, 'EventCall_{}.csv'.format(user)), 'a+', newline='',
                                       encoding="utf-8") as csvfile:
                                 fieldnames = ['calldate', 'creator_name', 'creator_email', 'count', 'duration',
                                               'participant_name', 'participant_email', 'user']
@@ -1595,7 +1595,7 @@ if __name__ == "__main__":
                                              c.email, user])
                                 csvfile.close()
 
-                            with open(os.path.join(pathMulti, 'Conversations.csv'), 'a+', newline='',
+                            with open(os.path.join(pathMulti, 'Conversations_{}.csv'.format(user)), 'a+', newline='',
                                       encoding="utf-8") as csvfile:
                                 fieldnames = ['conversation_ID', 'date', 'nome_creator', 'email_creator', 'member_name',
                                               'member_email', 'user']
@@ -1609,7 +1609,7 @@ if __name__ == "__main__":
                                              member.nome, member.email, user])
                                 csvfile.close()
 
-                            with open(os.path.join(pathMulti, 'CallOneToOne.csv'), 'a+', newline='',
+                            with open(os.path.join(pathMulti, 'CallOneToOne_{}.csv'.format(user)), 'a+', newline='',
                                       encoding="utf-8") as csvfile:
                                 fieldnames = ['originator_name', 'originator_email', 'time_start', 'time_finish',
                                               'target_nome', 'target_email', 'state', 'user']
@@ -1655,7 +1655,7 @@ if __name__ == "__main__":
             else:
                 print("Successfully created the directory %s " % pathToAutopsy)
 
-            with open(os.path.join(pathToAutopsy, 'Reacts.csv'), 'a+', newline='',
+            with open(os.path.join(pathToAutopsy, 'Reacts_{}.csv'.format(user)), 'a+', newline='',
                       encoding="utf-8") as csvfile:
                 fieldnames = ['messageID', 'reacted_with', 'reacted_by', 'react_time', 'user']
                 messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|',
@@ -1674,7 +1674,7 @@ if __name__ == "__main__":
 
             findpadrao(pathToAutopsy)
 
-            with open(os.path.join(pathToAutopsy, 'Contactos.csv'), 'a+', newline='', encoding="utf-8") as csvfile:
+            with open(os.path.join(pathToAutopsy, 'Contactos_{}.csv'.format(user)), 'a+', newline='', encoding="utf-8") as csvfile:
                 fieldnames = ['nome', 'email', 'orgid', 'user']
                 messagewriter = csv.writer(csvfile, delimiter=';',
                                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -1683,7 +1683,7 @@ if __name__ == "__main__":
                     messagewriter.writerow([value.nome, value.email, value.orgid, user])
                 csvfile.close()
 
-            with open(os.path.join(pathToAutopsy, 'Mensagens.csv'), 'a+', newline='', encoding="utf-8") as csvfile:
+            with open(os.path.join(pathToAutopsy, 'Mensagens_{}.csv'.format(user)), 'a+', newline='', encoding="utf-8") as csvfile:
                 fieldnames = ['messageID', 'message', 'time', 'sender', 'conversation_id', 'user']
                 messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
                 messagewriter.writerow(fieldnames)
@@ -1697,7 +1697,7 @@ if __name__ == "__main__":
                     idMessage += 1
                 csvfile.close()
 
-            with open(os.path.join(pathToAutopsy, 'Files.csv'), 'a+', newline='', encoding="utf-8") as csvfile:
+            with open(os.path.join(pathToAutopsy, 'Files_{}.csv'.format(user)), 'a+', newline='', encoding="utf-8") as csvfile:
                 fieldnames = ['messageID', 'file_name', 'file_url', 'user']
                 messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
                 messagewriter.writerow(fieldnames)
@@ -1708,7 +1708,7 @@ if __name__ == "__main__":
                         messagewriter.writerow([str(key), f.nome, f.local, 'user'])
                 csvfile.close()
 
-            with open(os.path.join(pathToAutopsy, 'EventCall.csv'), 'a+', newline='',
+            with open(os.path.join(pathToAutopsy, 'EventCall_{}.csv'.format(user)), 'a+', newline='',
                       encoding="utf-8") as csvfile:
                 fieldnames = ['calldate', 'creator_name', 'creator_email', 'count', 'duration', 'participant_name',
                               'participant_email', 'user']
@@ -1726,7 +1726,7 @@ if __name__ == "__main__":
                              c.nome, c.email, user])
                 csvfile.close()
 
-            with open(os.path.join(pathToAutopsy, 'Conversations.csv'), 'a+', newline='',
+            with open(os.path.join(pathToAutopsy, 'Conversations_{}.csv'.format(user)), 'a+', newline='',
                       encoding="utf-8") as csvfile:
                 fieldnames = ['conversation_ID', 'date', 'nome_creator', 'email_creator', 'member_name',
                               'member_email', 'user']
@@ -1739,7 +1739,7 @@ if __name__ == "__main__":
                             [value.conversation_id, value.date, value.creator.nome, value.creator.email, member.nome,
                              member.email, user])
                 csvfile.close()
-            with open(os.path.join(pathToAutopsy, 'CallOneToOne.csv'), 'a+', newline='',
+            with open(os.path.join(pathToAutopsy, 'CallOneToOne_{}.csv'.format(user)), 'a+', newline='',
                       encoding="utf-8") as csvfile:
                 fieldnames = ['originator_name', 'originator_email', 'time_start', 'time_finish', 'target_nome',
                               'target_email', 'state', 'user']
