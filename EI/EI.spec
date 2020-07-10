@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['EI.py'],
-             pathex=['C:\\Users\\Beco\\AppData\\Roaming\\ProjetoEI\\EI'],
+             pathex=['D:\\Nova pasta (2)'],
              binaries=[],
              datas=[],
              hiddenimports=[],

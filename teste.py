@@ -295,11 +295,17 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                         pathsLDB[pathLDB]=os.path.join(projectEIAppDataPath,name)
                         results.append(os.path.join(projectEIAppDataPath,name))
         f = open(os.path.join(projectEIAppDataPath,"filesToReport.txt"),"w")
+        nCSS=0
         for r in results:
             for files in os.walk(r,topdown=False):
                 for name in files:
                     for fileName in name:
                         if ".csv" in fileName or ".html" in fileName or ".css" in fileName:
+                            if ".css" in fileName and nCSS == 0:
+                                f.write(os.path.join(r,fileName)+"\n")
+                                nCSS=1
+                            else:
+                                continue
                             f.write(os.path.join(r,fileName)+"\n")
                         
         f.close()
