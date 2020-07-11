@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 
 def find(pt, path):
@@ -40,7 +41,11 @@ def writelog(path, pathArmazenamento):
 def crialogtotal(pathArmazenamento, pathModule, levelDBPath):
     # os.system(r'cmd /c "LDBReader\PrjTeam.exe"')
     logFinal = open(os.path.join(pathArmazenamento, "logTotal.txt"), "a+", encoding="utf-8")
-    os.system('cmd /c "{}LevelDBReader\\eiTeste.exe "{}" "{}"'.format(pathModule, levelDBPath, pathArmazenamento))
+    # os.system('cmd /c "{}LevelDBReader\\eiTeste.exe "{}" "{}"'.format(pathModule, levelDBPath, pathArmazenamento))
+    p = subprocess.Popen([r"{}LevelDBReader\\eiTeste.exe".format(pathModule), r"{}".format(levelDBPath), r"{}".format(pathArmazenamento)],
+                         stderr=subprocess.PIPE)
+    out = p.stderr.read()
+    p.wait()
     testeldb(levelDBPath + "\\lost", pathArmazenamento, pathModule)
     logLost = find(".log", levelDBPath + "\\lost")
     writelog(os.path.join(pathArmazenamento, "logIndexedDB.txt"), pathArmazenamento)

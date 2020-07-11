@@ -124,7 +124,7 @@ if __name__ == "__main__":
                             arrayCallOneToOne = arrayReturn["callOneToOne"]
 
                             WriteCSV.writeFiles(user, pathMulti, arrayContactos, arrayMensagens, arrayEventCall,
-                                                dictionaryConversationDetails, arrayCallOneToOne, tmCSV)
+                                       dictionaryConversationDetails, arrayCallOneToOne, tmCSV)
                             ProduceHTML.createhtmltables(pathMulti, user, arrayContactos, arrayEventCall,
                                                          arrayCallOneToOne,
                                                          dictionaryConversationDetails, current_milli_time(), tmCSV)
@@ -189,4 +189,3 @@ if __name__ == "__main__":
 
             ProduceHTML.createhtmltables(pathToAutopsy, user, arrayContactos, arrayEventCall, arrayCallOneToOne,
                                          dictionaryConversationDetails, current_milli_time(), tmCSV)
-

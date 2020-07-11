@@ -515,8 +515,8 @@ def filtro(buffer, arrayContactos, pathArmazenanto, user):
                             reaction.time = str(tr)
                         except Exception:
                             reaction.time = str(timeReaction)
-
-                        arrayReacoes.append(reaction)
+                        if reaction.time.find("value")==-1:
+                            arrayReacoes.append(reaction)
                         orgidReact = ""
                         timeReaction = ""
                         reacaoChunkReady = False

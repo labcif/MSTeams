@@ -298,12 +298,14 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                         results.append(os.path.join(projectEIAppDataPath,name))
         f = open(os.path.join(projectEIAppDataPath,"filesToReport.txt"),"w")
         nCSS=0
+        arrfiles={}
         for r in results:
             for files in os.walk(r,topdown=False):
                 for name in files:
                     for fileName in name:
-                        if ".csv" in fileName or ".html" in fileName or ".css" in fileName:
+                        if (".csv" in fileName or ".html" in fileName or ".css" in fileName) and os.path.join(r,fileName) not in arrfiles:
                             f.write(os.path.join(r,fileName)+"\n")
+                            arrfiles[os.path.join(r,fileName)]="Done"
         f.close()
 
         f = open(os.path.join(projectEIAppDataPath,"filesToReport.txt"), "r")
