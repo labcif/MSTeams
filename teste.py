@@ -310,6 +310,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
         for line in f:
             line = line.replace("\n","")
             pathExtract=""
+            self.log(Level.INFO,line)
             if ".csv" in line:
                 # ok
                 if "EventCall" in line:
