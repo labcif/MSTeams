@@ -39,7 +39,7 @@ This module can only be used with Autopsy
 7. In intended, Click "Generate Report" to generate a report containing HTML and CSV so you can analyze.
 
 ### Important note
-* This Data Source Ingest Module only suports 3 types os data source:
+* This Data Source Ingest Module only suports 3 types of data source:
 1. Local Disk
 2. Disk Image
 3. Local Folder*
