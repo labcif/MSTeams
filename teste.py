@@ -246,6 +246,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                         if file.getName() == "." or file.getName() == ".." or "-slack" in file.getName():
                             continue
                         buffer = jarray.zeros(file.getSize(), "b")
+                        self.log(Level.INFO,src)
                         if src not in paths:
                             tm = datetime.fromtimestamp(math.floor(tim.time())).strftime("%m-%d-%Y_%Hh-%Mm-%Ss")
                             paths[src] = "Analysis_Autopsy_LDB_{}_{}".format(user,tm)
@@ -266,6 +267,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
         pathModule = os.path.realpath(__file__)
         indexCutPath=pathModule.rfind("\\")
         pathModule=pathModule[0:indexCutPath+1]
+        
         # message = IngestMessage.createMessage(
         #     IngestMessage.MessageType.DATA, Labcif-MSTeamsFactory.moduleName,
         #         str(self.filesFound) + " files found")
@@ -274,13 +276,13 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
         for key,value in paths.items():
             if key not in result:
                 result[key] = value
-    
+        self.log(Level.INFO,"ALO")
         for key, value in result.items():
             p = subprocess.Popen([r"{}EI\EI.exe".format(pathModule),"--pathToEI",r"{}EI\ ".format(pathModule), "-a", value],stderr=subprocess.PIPE)
             out = p.stderr.read()
-            self.log(Level.INFO, out)
             p.wait()
             # os.system("cmd /c \"{}EI\\EI.exe\" --pathToEI \"{}EI\\\" -a {}".format(pathModule,pathModule,value))
+            self.log(Level.INFO,"standalone finished")
         results=[]
         pathResults="Analise Autopsy"
         for u in users:
@@ -301,13 +303,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                 for name in files:
                     for fileName in name:
                         if ".csv" in fileName or ".html" in fileName or ".css" in fileName:
-                            if ".css" in fileName and nCSS == 0:
-                                f.write(os.path.join(r,fileName)+"\n")
-                                nCSS=1
-                            else:
-                                continue
                             f.write(os.path.join(r,fileName)+"\n")
-                        
         f.close()
 
         f = open(os.path.join(projectEIAppDataPath,"filesToReport.txt"), "r")
@@ -317,7 +313,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
             if ".csv" in line:
                 # ok
                 if "EventCall" in line:
-
                     rowcount=0
                     for key,value in pathsLDB.items():
                         if value in line:
@@ -348,7 +343,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                         csvfile.close()
                 # ok
                 elif "Conversations" in line:
-
                     rowcount=0
                     for key,value in pathsLDB.items():
                         if value in line:
@@ -376,7 +370,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                         csvfile.close()
                 # ok
                 elif "CallOneToOne" in line:
-
                     rowcount=0
                     for key,value in pathsLDB.items():
                         if value in line:
@@ -405,7 +398,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                             rowcount+=1
                         csvfile.close()
                 elif "Files" in line:
-
                     rowcount=0
                     for key,value in pathsLDB.items():
                         if value in line:
@@ -447,7 +439,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                         reader = csv.reader(x.replace('\0', '') for x in csvfile)                     
                         for row in reader: # each row is a list
                             try:
-                                self.log(Level.INFO,str(row))
                                 if rowcount!=0:
                                     if len(row) == 1:
                                         row = row[0].split(";")
@@ -483,7 +474,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                             rowcount+=1
                         csvfile.close()
                 elif "Reacts" in line:
-
                     rowcount=0
                     for key,value in pathsLDB.items():
                         if value in line:
@@ -514,7 +504,6 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                             rowcount+=1
                         csvfile.close()
                 elif "Contactos.csv" in line:
-
                     rowcount=0
                     for key,value in pathsLDB.items():
                         if value in line:
@@ -538,12 +527,12 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                                 self.log(Level.INFO,"File empty")
                             rowcount+=1
                         csvfile.close()
-
             rowcount=0
-        
+        f.close()
         #Post a message to the ingest messages in box.
         message = IngestMessage.createMessage(IngestMessage.MessageType.DATA,
             "Sample Jython Data Source Ingest Module", "Please run MSTeams Report")
         IngestServices.getInstance().postMessage(message)
 
         return IngestModule.ProcessResult.OK
+

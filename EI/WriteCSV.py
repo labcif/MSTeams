@@ -8,9 +8,9 @@ def writeFiles(user, pathArmazenamento, arrayContactos, arrayMensagens, arrayEve
                arrayCallOneToOne, tmCSV):
     idMessage = 1
     dictFiles = {}
-    with open(os.path.join(pathArmazenamento, 'Contactos_{}_{}.csv'.format(user,tmCSV)), 'a+', newline='',
+    with open(os.path.join(pathArmazenamento, 'Contactos_{}_{}.csv'.format(user, tmCSV)), 'a+', newline='',
               encoding="utf-8") as csvfile:
-        fieldnames = ['nome', 'email', 'orgid''user']
+        fieldnames = ['nome', 'email', 'orgid', 'user']
         messagewriter = csv.writer(csvfile, delimiter=';',
                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
         messagewriter.writerow(fieldnames)
@@ -18,7 +18,7 @@ def writeFiles(user, pathArmazenamento, arrayContactos, arrayMensagens, arrayEve
             messagewriter.writerow([value.nome, value.email, value.orgid, user])
         csvfile.close()
 
-    with open(os.path.join(pathArmazenamento, 'Mensagens_{}_{}.csv'.format(user,tmCSV)), 'a+', newline='',
+    with open(os.path.join(pathArmazenamento, 'Mensagens_{}_{}.csv'.format(user, tmCSV)), 'a+', newline='',
               encoding="utf-8") as csvfile:
         fieldnames = ['messageID', 'message', 'time', 'sender', 'conversation_id', 'user']
         messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|',
@@ -34,7 +34,7 @@ def writeFiles(user, pathArmazenamento, arrayContactos, arrayMensagens, arrayEve
             idMessage += 1
         csvfile.close()
 
-    with open(os.path.join(pathArmazenamento, 'Files_{}_{}.csv'.format(user,tmCSV)), 'a+', newline='',
+    with open(os.path.join(pathArmazenamento, 'Files_{}_{}.csv'.format(user, tmCSV)), 'a+', newline='',
               encoding="utf-8") as csvfile:
         fieldnames = ['messageID', 'file_name', 'file_url', 'user']
         messagewriter = csv.writer(csvfile, delimiter=';', quotechar='|',
@@ -47,7 +47,7 @@ def writeFiles(user, pathArmazenamento, arrayContactos, arrayMensagens, arrayEve
                 messagewriter.writerow([str(key), f.nome, f.local, 'user'])
         csvfile.close()
 
-    with open(os.path.join(pathArmazenamento, 'EventCall_{}_{}.csv'.format(user,tmCSV)), 'a+', newline='',
+    with open(os.path.join(pathArmazenamento, 'EventCall_{}_{}.csv'.format(user, tmCSV)), 'a+', newline='',
               encoding="utf-8") as csvfile:
         fieldnames = ['calldate', 'creator_name', 'creator_email', 'count', 'duration',
                       'participant_name', 'participant_email', 'user']
@@ -62,11 +62,11 @@ def writeFiles(user, pathArmazenamento, arrayContactos, arrayMensagens, arrayEve
                     c = Contacts.Contacto('Desc....', 'Desc.', oID)
 
                 callwriter.writerow(
-                    [call.calldate, call.creator.nome, call.creator.email, call.count, c.nome,
+                    [call.calldate, call.creator.nome, call.creator.email, call.count, call.duration, c.nome,
                      c.email, user])
         csvfile.close()
 
-    with open(os.path.join(pathArmazenamento, 'Conversations_{}_{}.csv'.format(user,tmCSV)), 'a+', newline='',
+    with open(os.path.join(pathArmazenamento, 'Conversations_{}_{}.csv'.format(user, tmCSV)), 'a+', newline='',
               encoding="utf-8") as csvfile:
         fieldnames = ['conversation_ID', 'date', 'nome_creator', 'email_creator', 'member_name',
                       'member_email', 'user']
@@ -80,7 +80,7 @@ def writeFiles(user, pathArmazenamento, arrayContactos, arrayMensagens, arrayEve
                      member.nome, member.email, user])
         csvfile.close()
 
-    with open(os.path.join(pathArmazenamento, 'CallOneToOne_{}_{}.csv'.format(user,tmCSV)), 'a+', newline='',
+    with open(os.path.join(pathArmazenamento, 'CallOneToOne_{}_{}.csv'.format(user, tmCSV)), 'a+', newline='',
               encoding="utf-8") as csvfile:
         fieldnames = ['originator_name', 'originator_email', 'time_start', 'time_finish',
                       'target_nome', 'target_email', 'state', 'user']
