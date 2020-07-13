@@ -205,18 +205,18 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
                 return IngestModule.ProcessResult.OK
 
             fileCount += 1
-
             # Make an artifact on the blackboard.  TSK_INTERESTING_FILE_HIT is a generic type of
             # artfiact.  Refer to the developer docs for other examples.
 
             src = file.getParentPath()
             pathSplited=src.split("/")
             user=pathSplited[2]
+            self.log(Level.INFO,file.getParentPath())
             if user not in users:
                 users.append(user)
             buffer = jarray.zeros(file.getSize(), "b")
             file.read(buffer,0,file.getSize())
-            if "lost" not in src and "Roaming" in file.getParentPath() and "ProjetoEI" not in file.getParentPath():
+            if "lost" not in src and "AppData" in file.getParentPath() and "ProjetoEI" not in file.getParentPath():
                 if src not in paths:
                     tm = datetime.fromtimestamp(math.floor(tim.time())).strftime("%m-%d-%Y_%Hh-%Mm-%Ss")
                     paths[src]="Analysis_Autopsy_LDB_{}_{}".format(user,tm)
@@ -242,7 +242,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
             for src, path in paths.items():
                 complementaryFiles=fileManager.findFilesByParentPath(dataSource.getId(),src)
                 for file in complementaryFiles:
-                    if "lost" not in file.getParentPath() and ".ldb" not in file.getName() and "lost" not in file.getName() and "Roaming" in file.getParentPath() and "ProjetoEI" not in file.getParentPath():
+                    if "lost" not in file.getParentPath() and ".ldb" not in file.getName() and "lost" not in file.getName() and "AppData" in file.getParentPath() and "ProjetoEI" not in file.getParentPath():
                         if file.getName() == "." or file.getName() == ".." or "-slack" in file.getName():
                             continue
                         buffer = jarray.zeros(file.getSize(), "b")
@@ -267,6 +267,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
         pathModule = os.path.realpath(__file__)
         indexCutPath=pathModule.rfind("\\")
         pathModule=pathModule[0:indexCutPath+1]
+
         
         # message = IngestMessage.createMessage(
         #     IngestMessage.MessageType.DATA, Labcif-MSTeamsFactory.moduleName,
@@ -274,6 +275,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
         analysisPath = ""
         result = {}
         for key,value in paths.items():
+            self.log(Level.INFO,"Src: "+key+" Appdata: "+value)
             if key not in result:
                 result[key] = value
         self.log(Level.INFO,"ALO")
