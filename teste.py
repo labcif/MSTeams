@@ -278,7 +278,7 @@ class LabcifMSTeamsDataSourceIngestModule(DataSourceIngestModule):
         for key, value in result.items():
             p = subprocess.Popen([r"{}EI\EI.exe".format(pathModule),"--pathToEI",r"{}EI\ ".format(pathModule), "-a", value],stderr=subprocess.PIPE)
             out = p.stderr.read()
-            self.log(Level.INFO, out)
+            self.log(Level.INFO, out) 
             p.wait()
             # os.system("cmd /c \"{}EI\\EI.exe\" --pathToEI \"{}EI\\\" -a {}".format(pathModule,pathModule,value))
         results=[]

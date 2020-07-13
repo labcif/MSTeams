@@ -51,7 +51,7 @@ Project developed as final project for Computer Engineering course in Escola Sup
 
 ## Environments Tested
 
-* Windows
+* Windows 
 
 ## License
 
