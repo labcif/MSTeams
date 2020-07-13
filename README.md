@@ -43,7 +43,7 @@ This module can only be used with Autopsy
 1. Local Disk
 2. Disk Image
 3. Local Folder*
-* *The local folder data source is recomended to be the location of Users folder, so you can get better results. If you dont want, your limit, on the directory tree must be %APPDATA%/Roaming
+* *The local folder data source is recomended to be the location of Users folder, so you can get better results. If you dont want, your limit, on the directory tree must be %APPDATA%
 ## Authors
 
 * **Guilherme Beco** - [GitHub](https://github.com/GuilhermeBeco)
