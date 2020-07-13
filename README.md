@@ -19,7 +19,7 @@ Teams artifacts extraction providing results easy to be analyzed. This Autopsy M
 
 ![BlackBoard](https://imgur.com/mCWseew)
 
-![Report(https://imgur.com/R7Pmtf7)
+![Report](https://imgur.com/R7Pmtf7)
 
 ## Prerequisites
 
