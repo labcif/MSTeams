@@ -34,7 +34,7 @@ Teams artifacts extraction providing results easy to be analyzed. This Autopsy M
 6. Analyze your results that are on the blackboard
 6. If you intend to analyze the results using HTML or CSV, click "Generate Report", select 'MSTeams Report Module' and your report will be generated.
 
-* This Data Source Ingest Module can only be execute using three types of data source. Disk image, local disk or local folders. One thing to keep in mind is that when using local folders it's recomended to use the Users folder to use this module to it's full potencial. If thats not your intention, your limit must be %APPDATA%\Roaming.
+* This Data Source Ingest Module can only be execute using three types of data source. Disk image, local disk or local folders. One thing to keep in mind is that when using local folders it's recomended to use the Users folder to use this module to it's full potencial. If thats not your intention, your limit must be %APPDATA% .
 
 
 ## Authors
