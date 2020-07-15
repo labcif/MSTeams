@@ -449,19 +449,13 @@ def filtro(buffer, arrayContactos, pathArmazenanto, user):
                     contactoOriginator = arrayContactos.get(originator)
                 else:
                     ind = line.find("originatorParticipant")
-                    displayOrig = ""
-                    for x in range(line.find("displayName", ind) + 14, line.find("\"}", ind)):
-                        displayOrig += l[x]
-                    contactoOriginator = Contacts.Contacto(displayOrig, "sem email", originator)
+                    contactoOriginator = Contacts.Contacto("Desc.", "sem email", originator)
                     arrayContactos[originator] = contactoOriginator
                 if target in arrayContactos:
                     contactoTarget = arrayContactos.get(target)
                 else:
                     displayTarget = ""
-                    indT = line.find("targetParticipant")
-                    for x in range(line.find("displayName", indT) + 14, line.find("\"}", indT)):
-                        displayTarget += l[x]
-                    contactoTarget = Contacts.Contacto(displayTarget, "sem email", target)
+                    contactoTarget = Contacts.Contacto("desc.", "sem email", target)
                     arrayContactos[target] = contactoTarget
                 dtStart = zulu.parse(start)
                 callstart = datetime.utcfromtimestamp(dtStart.timestamp())
