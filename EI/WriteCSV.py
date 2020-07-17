@@ -43,8 +43,8 @@ def writeFiles(user, pathArmazenamento, arrayContactos, arrayMensagens, arrayEve
         for key, value in dictFiles.items():
             for f in value:
                 print(f.toString())
-                print(str([str(key), f.nome, f.local, 'user']))
-                messagewriter.writerow([str(key), f.nome, f.local, 'user'])
+                print(str([str(key), f.nome, f.local, user]))
+                messagewriter.writerow([str(key), f.nome, f.local, user])
         csvfile.close()
 
     with open(os.path.join(pathArmazenamento, 'EventCall_{}_{}.csv'.format(user, tmCSV)), 'a+', newline='',
